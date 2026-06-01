@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Marketing OS - Bab Sharqi</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#050814;
+    color:#fff;
+}
+
+/* HEADER */
+.header{
+    padding:15px;
+    background:#0e1529;
+    display:flex;
+    justify-content:space-between;
+}
+
+/* TABS */
+.tabs{
+    display:flex;
+    background:#0b1224;
+}
+
+.tab{
+    flex:1;
+    padding:12px;
+    cursor:pointer;
+    text-align:center;
+    background:#0b1224;
+    border-bottom:2px solid transparent;
+}
+
+.tab.active{
+    border-bottom:2px solid #2b6fff;
+    background:#111a33;
+}
+
+/* CONTAINER */
+.container{
+    display:none;
+    padding:15px;
+}
+
+.container.active{
+    display:block;
+}
+
+/* BOX */
+.box{
+    background:#111a33;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+}
+
+textarea,input{
+    width:100%;
+    background:#0b1224;
+    border:none;
+    color:#fff;
+    padding:10px;
+    border-radius:8px;
+    margin-top:8px;
+}
+
+button{
+    background:#2b6fff;
+    color:#fff;
+    border:none;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+pre{
+    background:#0b1224;
+    padding:10px;
+    border-radius:10px;
+    white-space:pre-wrap;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.card{
+    background:#0b1224;
+    padding:10px;
+    border-radius:10px;
+}
+
+.green{color:#2bff88;}
+.red{color:#ff4d4d;}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h3>AI Marketing OS v3</h3>
+<span>Dynamic Decision + Media Plan Engine</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+<div class="tab active" onclick="showTab(0)">AI Insights</div>
+<div class="tab" onclick="showTab(1)">Media Plan Generator</div>
+</div>
+
+<!-- TAB 1 -->
+<div class="container active">
+
+<div class="box">
+<h3>📊 Input Data (JSON)</h3>
+
+<textarea id="dataInput">
+[
+{
+"campaign":"Website",
+"spend":1854,
+"impressions":33327,
+"clicks":912,
+"revenue":1356,
+"purchases":7,
+"cpc":2.03
+},
+{
+"campaign":"Acquisition",
+"spend":4579,
+"impressions":178511,
+"clicks":5207,
+"revenue":6589,
+"purchases":42,
+"cpc":0.87
+}
+]
+</textarea>
+
+<button onclick="analyze()">Run AI Analysis</button>
+</div>
+
+<div class="box">
+<h3>🧠 AI Insights</h3>
+<div id="insights"></div>
+</div>
+
+<div class="box">
+<h3>📈 KPIs</h3>
+<div id="kpis" class="grid"></div>
+</div>
+
+</div>
+
+<!-- TAB 2 -->
+<div class="container">
+
+<div class="box">
+<h3>💰 Media Plan Generator</h3>
+
+<label>Budget</label>
+<input id="budget" value="10000">
+
+<label>Goal</label>
+<input id="goal" value="Sales / ROAS">
+
+<label>Days</label>
+<input id="days" value="30">
+
+<button onclick="generatePlan()">Generate Media Plan</button>
+</div>
+
+<div class="box">
+<h3>🧠 Generated Plan</h3>
+<div id="plan"></div>
+</div>
+
+</div>
+
+<script>
+
+function showTab(i){
+let tabs = document.querySelectorAll(".tab");
+let containers = document.querySelectorAll(".container");
+
+tabs.forEach(t=>t.classList.remove("active"));
+containers.forEach(c=>c.classList.remove("active"));
+
+tabs[i].classList.add("active");
+containers[i].classList.add("active");
+}
+
+/* ================= AI ANALYSIS ENGINE ================= */
+
+function analyze(){
+
+let data = JSON.parse(document.getElementById("dataInput").value);
+
+let spend=0, revenue=0, clicks=0, purchases=0;
+
+data.forEach(d=>{
+spend+=d.spend;
+revenue+=d.revenue;
+clicks+=d.clicks;
+purchases+=d.purchases;
+});
+
+let roas = revenue/spend;
+let cpa = spend/purchases;
+let cpc = spend/clicks;
+
+document.getElementById("kpis").innerHTML = `
+<div class="card">ROAS<br><b>${roas.toFixed(2)}</b></div>
+<div class="card">CPA<br><b>${cpa.toFixed(1)}</b></div>
+<div class="card">CPC<br><b>${cpc.toFixed(2)}</b></div>
+`;
+
+let insight = "";
+
+insight += "📊 SYSTEM ANALYSIS\n\n";
+
+if(roas < 1){
+insight += "🚨 Losing money system detected\n";
+}
+
+if(cpc > 1){
+insight += "⚠️ High traffic cost (CPC inflation)\n";
+}
+
+if(purchases/clicks < 0.01){
+insight += "⚠️ Funnel leak (Click → Purchase)\n";
+}
+
+insight += "\n🧠 ROOT CAUSE:\n";
+
+if(cpc > 1 && roas < 1){
+insight += "- Audience saturation + inefficient bidding\n";
+} else if(roas < 1){
+insight += "- Conversion problem / offer mismatch\n";
+} else {
+insight += "- System stable\n";
+}
+
+insight += "\n🚀 ACTIONS:\n";
+
+if(roas < 1){
+insight += "- Pause weak campaigns\n- Rebuild targeting\n- Fix traffic quality\n";
+} else {
+insight += "- Scale winning campaigns\n- Increase budget gradually\n";
+}
+
+document.getElementById("insights").innerHTML = "<pre>"+insight+"</pre>";
+
+}
+
+/* ================= MEDIA PLAN ENGINE ================= */
+
+function generatePlan(){
+
+let budget = parseFloat(document.getElementById("budget").value);
+let days = parseInt(document.getElementById("days").value);
+
+let daily = budget/days;
+
+let plan = "";
+
+plan += "💰 TOTAL BUDGET: "+budget+"\n";
+plan += "📅 DAILY SPEND: "+daily.toFixed(2)+"\n\n";
+
+plan += "📊 STRUCTURE:\n\n";
+
+plan += "1. Acquisition (Cold Traffic) - 60%\n";
+plan += "   Budget: "+(budget*0.6).toFixed(0)+"\n";
+plan += "   Objective: Traffic / Conversions\n\n";
+
+plan += "2. Retargeting - 25%\n";
+plan += "   Budget: "+(budget*0.25).toFixed(0)+"\n";
+plan += "   Objective: Purchase Recovery\n\n";
+
+plan += "3. Testing Campaigns - 15%\n";
+plan += "   Budget: "+(budget*0.15).toFixed(0)+"\n";
+plan += "   Objective: Creative + Audience testing\n\n";
+
+plan += "🧠 RECOMMENDATION:\n";
+
+if(daily < 200){
+plan += "- Focus on 1 campaign only (avoid fragmentation)\n";
+} else {
+plan += "- Scale multi-layer funnel structure\n";
+}
+
+document.getElementById("plan").innerHTML = "<pre>"+plan+"</pre>";
+
+}
+
+</script>
+
+</body>
+</html>
